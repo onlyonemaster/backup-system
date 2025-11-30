@@ -1,0 +1,38 @@
+# 개발 환경
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+.env
+.env.local
+
+# 로컬 설정
+config/config.sh
+config/*.local.conf
+
+# 로그 파일
+*.log
+logs/
+
+# 백업 디렉토리
+/backup/
+/backups/
+
+# 테스트 파일
+test.php
+test.sh
+debug.log
+
+# IDE
+*.sublime-project
+*.sublime-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
