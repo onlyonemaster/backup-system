@@ -30,7 +30,7 @@ find "$SOURCE_DIR" -name '*.php' -type f -mmin -10 2>/dev/null | while read FILE
         FILE_HASH=$(md5sum "$FILE" | awk '{print $1}')
         LINE_COUNT=$(wc -l < "$FILE" 2>/dev/null)
         BACKUP_TIME=$(date '+%Y-%m-%d %H:%M:%S')
-        KOREAN_DATE=$(date '+%Y년 %m월 %d일 %a %I:%M:%S %p')
+        KOREAN_DATE=$(date '+%Y년 %m월 %d일 %a %H:%M:%S')
 
         # 이전 백업 찾기
         PREV_BACKUP=$(ls -t "$BACKUP_DIR"/${FILENAME}-${DIRPATH_SAFE}-*.bak 2>/dev/null | head -2 | tail -1)
@@ -39,24 +39,27 @@ find "$SOURCE_DIR" -name '*.php' -type f -mmin -10 2>/dev/null | while read FILE
         DIFF_INFO="initial backup"
         if [ -n "$PREV_BACKUP" ] && [ -f "$PREV_BACKUP" ]; then
             DIFF_LINES=$(diff "$PREV_BACKUP" "$BACKUP_FILE" 2>/dev/null | grep -c "^[<>]" || echo "0")
-            DIFF_INFO="$DIFF_LINES lines modified"
+            DIFF_INFO="${DIFF_LINES} lines modified"
         fi
 
-        # JSON 메타 파일 생성
+        # JSON 메타 파일 생성 (변수 처리 최적화)
+        PREV_BACKUP_NAME=$(basename "$PREV_BACKUP" 2>/dev/null || echo "")
+        BACKUP_FILE_NAME=$(basename "$BACKUP_FILE")
+
         cat > "$META_FILE" << EOF
 {
   "timestamp": "$TIMESTAMP",
   "original_path": "$RELPATH",
   "file_type": "php",
   "source_directory": "$SOURCE_DIR",
-  "backup_filename": "$(basename $BACKUP_FILE)",
+  "backup_filename": "$BACKUP_FILE_NAME",
   "file_size_bytes": $FILE_SIZE,
   "total_lines": $LINE_COUNT,
   "md5_hash": "$FILE_HASH",
   "backup_datetime": "$BACKUP_TIME",
   "korean_date": "$KOREAN_DATE",
   "changes": "$DIFF_INFO",
-  "previous_backup": "$(basename $PREV_BACKUP)"
+  "previous_backup": "$PREV_BACKUP_NAME"
 }
 EOF
 
